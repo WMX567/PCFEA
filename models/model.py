@@ -131,8 +131,6 @@ class DGCNN(nn.Module):
         batch_size = x.size(0)
         logits = {}
 
-        print("x.size() = ", x.size())
-        
         x0 = get_graph_feature(x, self.args, k=self.k)
         transformd_x0 = self.input_transform_net(x0)
         x = torch.matmul(transformd_x0, x)

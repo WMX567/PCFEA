@@ -47,7 +47,7 @@ parser.add_argument('--num_workers', type=int, default=2, help='number of worker
 parser.add_argument('--exp_name', type=str, default='PCFEA', help='Name of the experiment')
 
 # model
-parser.add_argument('--model', type=str, default='DGCNN', choices=['PointNet++', 'DGCNN'], help='Model to use')
+parser.add_argument('--model', type=str, default='dgcnn', choices=['pointnet', 'dgcnn'], help='Model to use')
 parser.add_argument('--num_class', type=int, default=10, help='number of classes per dataset')
 parser.add_argument('--dropout', type=float, default=0.5, help='dropout rate')
 parser.add_argument('--use_avg_pool', type=str2bool, default=False, help='Using average pooling & max pooling or max pooling only')
