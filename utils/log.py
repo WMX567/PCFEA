@@ -1,10 +1,9 @@
 import datetime
 import pandas as pd
-import copy
 import torch
 import os
 import sklearn.metrics as metrics
-import pdb
+from data.dataloader_PointDA_initial import label_to_idx
 
 
 class IOStream():
@@ -12,17 +11,12 @@ class IOStream():
     Logging to screen and file
     """
     def __init__(self, args):
-        self.path = args.out_path + '/' + args.src_dataset + '_' + args.trgt_dataset + '/' + args.model + '/'
+        self.path = args.out_path
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-        if args.exp_name is None:
-            timestamp = str(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M'))
-            self.path = self.path + '/' + timestamp
-        else:
-            self.path = self.path + '/' + args.exp_name
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)
-        self.f = open(self.path + '/run.log', 'a')
+        self.f = open(self.path + '/run_{}_{}_{}'.format(args.src_dataset, 
+                                                         args.trgt_dataset, 
+                                                         args.seed) + args.model_type + '.log', 'w')
         self.args = args
 
     def cprint(self, text):
@@ -35,22 +29,17 @@ class IOStream():
     def close(self):
         self.f.close()
 
-    def save_model(self, model, epoch, additional_info):
-        path = self.path + '/' + additional_info
-        if not os.path.exists(path):
-            os.makedirs(path)
-        path = path + '/model.pt'
+    def save_model(self, model):
+        path = self.path + '/{}_{}_{}'.format(self.args.src_dataset, 
+                                              self.args.trgt_dataset, 
+                                              self.args.seed) + self.args.model_type +'.pt'
+        torch.save(model.state_dict(), path)
+        return
 
-        best_model = copy.deepcopy(model)
-        if len(self.args.gpus) > 1:
-            torch.save(model.module.state_dict(), path)
-        else:
-            state = {
-                'epoch': epoch,
-                'model': best_model.state_dict()
-            }
-            torch.save(state, path)
-        return best_model
+    def save_conf_mat(self, conf_matrix, fname, domain_set):
+        df = pd.DataFrame(conf_matrix, columns=list(label_to_idx.keys()), index=list(label_to_idx.keys()))
+        fname = domain_set + "_" + fname
+        df.to_csv(self.path + "/" + fname)
 
     def print_progress(self, domain_set, partition, epoch, print_losses, true=None, pred=None):
         outstr = "%s - %s %d" % (partition, domain_set, epoch)

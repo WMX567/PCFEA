@@ -13,12 +13,9 @@ import sklearn.metrics as metrics
 import argparse
 import copy
 import utils.log
-from data.dataloader_GraspNetPC import GraspNetRealPointClouds, GraspNetSynthetictPointClouds
 from data.dataloader_PointDA_initial import ScanNet, ModelNet, ShapeNet
-from models.model import linear_DGCNN_model
+from models.model import DGCNN
 from critic import PCFEALoss_no_mean, PCFEALoss, CalculateSelectedMean, CalculateSelectedCV, IDFALoss
-from tensorboardX import SummaryWriter  
-import pdb
 
 MAX_LOSS = 9 * (10 ** 9)
 
@@ -45,9 +42,9 @@ def str2bool(v):
 # ==================
 parser = argparse.ArgumentParser(description='DA on Point Clouds')
 parser.add_argument('--dataroot', type=str, default='../data/', metavar='N', help='data path')
-parser.add_argument('--out_path', type=str, default='./experiments/', help='log folder path')
+parser.add_argument('--out_path', type=str, default='./pcfea/', help='log folder path')
 parser.add_argument('--num_workers', type=int, default=2, help='number of workers in dataloader')
-parser.add_argument('--exp_name', type=str, default='test2', help='Name of the experiment')
+parser.add_argument('--exp_name', type=str, default='PCFEA', help='Name of the experiment')
 
 # model
 parser.add_argument('--model', type=str, default='DGCNN', choices=['PointNet++', 'DGCNN'], help='Model to use')
@@ -68,7 +65,7 @@ parser.add_argument('--test_batch_size', type=int, default=12, metavar='batch_si
 # method
 parser.add_argument('--use_aug', type=str2bool, default=False, help='Using source augmentation or not')
 parser.add_argument('--lambda_0', type=float, default=0.5, help='lambda in TSA')
-parser.add_argument('--epoch_warmup', type=int, default=0, help='0: no warm up; only train a w/o DA method')
+parser.add_argument('--epoch_warmup', type=int, default=5, help='0: no warm up; only train a w/o DA method')
 parser.add_argument('--selection_strategy', type=str, default='threshold', choices=['threshold', 'ratio'])
 parser.add_argument('--use_gradual_src_threshold', type=str2bool, default=True, help='Using changing threshold to select source samples or not')
 parser.add_argument('--use_gradual_trgt_threshold', type=str2bool, default=True, help='Using changing threshold to select target samples or not')
@@ -84,11 +81,11 @@ parser.add_argument('--trgt_ratio', type=float, default=1.0, help="threshold to 
 parser.add_argument('--period_update_pool', type=int, default=1, help='period to update the pool')
 parser.add_argument('--use_model_eval', type=str2bool, default=True, help='Using the eval mode of the model or the train mode')
 parser.add_argument('--loss_function', type=str, default='use_mean', choices=['no_mean', 'use_mean', 'CE'], help='use mean or not in our PCFEA loss or CE')
-parser.add_argument('--use_EMA', type=str2bool, default=True, help='Using teacher model or not')
-parser.add_argument('--EMA_update_warmup', type=str2bool, default=True, help='Update the teacher model in the warm up stage or not')
+parser.add_argument('--use_EMA', type=str2bool, default=False, help='Using teacher model or not')
+parser.add_argument('--EMA_update_warmup', type=str2bool, default=False, help='Update the teacher model in the warm up stage or not')
 parser.add_argument('--EMA_decay', type=float, default=0.99, help='initial weight decay in EMA')
-parser.add_argument('--use_src_IDFA', type=str2bool, default=False, help='Using the prototype alignment on the source data')
-parser.add_argument('--use_trgt_IDFA', type=str2bool, default=False, help='Using the prototype alignment on the target data')
+parser.add_argument('--use_src_IDFA', type=str2bool, default=True, help='Using the prototype alignment on the source data')
+parser.add_argument('--use_trgt_IDFA', type=str2bool, default=True, help='Using the prototype alignment on the target data')
 parser.add_argument('--tao', type=float, default=0.1, help='tao in prototype alignment')
 parser.add_argument('--w_PCFEA', type=float, default=1.0, help='weight of PCFEA loss')
 parser.add_argument('--w_src_IDFA', type=float, default=1.0, help='weight of source prototype alignment loss')
@@ -100,6 +97,7 @@ parser.add_argument('--optimizer', type=str, default='ADAM', choices=['ADAM', 'S
 parser.add_argument('--lr', type=float, default=1e-3, help='learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='SGD momentum')
 parser.add_argument('--wd', type=float, default=5e-5, help='weight decay')
+parser.add_argument('--model_type', type = str, default=None, help = 'model name')
 
 args = parser.parse_args()
 
@@ -195,22 +193,6 @@ elif src_dataset == 'scannet':
     src_trainset = ScanNet(io, args.dataroot, 'train')
     src_testset = ScanNet(io, args.dataroot, 'test')
 
-elif src_dataset == 'Syn':
-    if trgt_dataset == 'RS':
-        trgt_device = 'realsense'
-    if trgt_dataset == 'Kin':
-        trgt_device = 'kinect'
-    src_trainset = GraspNetSynthetictPointClouds(args.dataroot, partition='train')
-    src_testset = GraspNetRealPointClouds(args.dataroot, mode=trgt_device, partition='test')
-
-elif src_dataset == 'Kin':
-    src_trainset = GraspNetRealPointClouds(args.dataroot, mode='kinect', partition='train')
-    src_testset = GraspNetRealPointClouds(args.dataroot, mode='kinect', partition='test')
-
-elif src_dataset == 'RS':
-    src_trainset = GraspNetRealPointClouds(args.dataroot, mode='realsense', partition='train')
-    src_testset = GraspNetRealPointClouds(args.dataroot, mode='realsense', partition='test')
-
 else:
     io.cprint('unknown src dataset')
 
@@ -226,14 +208,6 @@ elif trgt_dataset == 'shapenet':
 elif trgt_dataset == 'scannet':
     trgt_trainset = ScanNet(io, args.dataroot, 'train')
     trgt_testset = ScanNet(io, args.dataroot, 'test')
-
-elif trgt_dataset == 'Kin':
-    trgt_trainset = GraspNetRealPointClouds(args.dataroot, mode='kinect', partition='train')
-    trgt_testset = GraspNetRealPointClouds(args.dataroot, mode='kinect', partition='test')
-
-elif trgt_dataset == 'RS':
-    trgt_trainset = GraspNetRealPointClouds(args.dataroot, mode='realsense', partition='train')
-    trgt_testset = GraspNetRealPointClouds(args.dataroot, mode='realsense', partition='test')
 
 else:
     io.cprint('unknown trgt dataset')
@@ -254,8 +228,8 @@ trgt_test_loader = DataLoader(trgt_testset, num_workers=args.num_workers, batch_
 # ==================
 # Init Model
 # ==================
-model = linear_DGCNN_model(args)
-teacher_model = linear_DGCNN_model(args)
+model = DGCNN(args)
+teacher_model = DGCNN(args)
 
 model = model.to(device)
 teacher_model = teacher_model.to(device)
@@ -345,7 +319,6 @@ def test(loader, model=None, set_type="Target", partition="Val", epoch=0):
                 data = data.permute(0, 2, 1)
 
             batch_size = data.size()[0]
-            num_point = data.shape[-1]
 
             num_sample = num_sample + batch_size
 
@@ -926,10 +899,6 @@ for epoch in range(args.epochs):
     io.cprint("previous best target test accuracy saved by trgt test: %.4f" % (trgt_best_acc_by_trgt_test))
     io.cprint("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     io.cprint("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-
-    tb.add_scalar('source_test_accuracy', src_test_acc, epoch)
-    tb.add_scalar('target_test_accuracy', trgt_test_acc, epoch)
-
 
 io.cprint("Best model searched by src val was found at epoch %d, target test accuracy: %.4f"
           % (best_epoch_by_src_val, trgt_best_acc_by_src_val))
