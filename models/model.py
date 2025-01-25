@@ -202,7 +202,7 @@ class DGCNN(nn.Module):
         x5 = F.adaptive_max_pool1d(x5, 1).view(batch_size, -1)
 
         logits['feature'] = x5
-        logits['pred'] = self.cls(x5)
+        logits['pred'] = self.C(x5)
 
         return logits
   

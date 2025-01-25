@@ -435,6 +435,8 @@ for epoch in range(args.epochs):
                 if src_data.shape[1] > src_data.shape[2]:
                     src_data = src_data.permute(0, 2, 1)
                 
+                print(src_data.size())
+                
                 if args.use_EMA:
                     src_logits = teacher_model(src_data)
                 else:
