@@ -108,8 +108,6 @@ io = utils.log.IOStream(args)
 io.cprint(str(args))
 
 args.save_path = io.path
-tb_dir = args.save_path
-tb = SummaryWriter(log_dir=tb_dir)
 
 random.seed(1)
 # np.random.seed(1)  # to get the same point choice in ModelNet and ScanNet leave it fixed
@@ -830,10 +828,6 @@ for epoch in range(args.epochs):
 
         # log
         iters += batch_size
-
-        tb.add_scalar('train_loss_total', print_losses['total'] / (batch_idx+1), iters)
-        tb.add_scalar('train_loss_cls', print_losses['cls'] / (batch_idx+1), iters)
-        tb.add_scalar('train_loss_PCFEA', print_losses['PCFEA'] / (batch_idx+1), iters)
 
         # update the teacher model per batch
         if epoch < args.epoch_warmup:
