@@ -2,13 +2,6 @@ import numpy as np
 import math
 import torch
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import os
-import glob
-import open3d as o3d
-import pdb
-# from models.pointnet2_utils import farthest_point_sample, query_ball_point, index_points
-
 
 def reshape_num(data, num_point):
     """
@@ -481,36 +474,36 @@ def strong_aug(data, aug_type='2'):
 #     return grouped_xyz
 
 
-if __name__ == '__main__':
-    dataroot = '../data/'
-    DATA_DIR = os.path.join(dataroot, "PointDA_data", "shapenet_norm_curv_angle")
-    npy_list = sorted(glob.glob(os.path.join(DATA_DIR, '*', 'train', '*.npy')))
-    pc_list = []
-    for _dir in npy_list:
-        pc_list.append(_dir)
+# if __name__ == '__main__':
+#     dataroot = '../data/'
+#     DATA_DIR = os.path.join(dataroot, "PointDA_data", "shapenet_norm_curv_angle")
+#     npy_list = sorted(glob.glob(os.path.join(DATA_DIR, '*', 'train', '*.npy')))
+#     pc_list = []
+#     for _dir in npy_list:
+#         pc_list.append(_dir)
 
-    data = np.load(pc_list[18])[:, :3].astype(np.float32)
+#     data = np.load(pc_list[18])[:, :3].astype(np.float32)
 
-    data_raw = data
-    pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(data_raw)
-    o3d.io.write_point_cloud('raw.ply', pcd)
+#     data_raw = data
+#     pcd = o3d.geometry.PointCloud()
+#     pcd.points = o3d.utility.Vector3dVector(data_raw)
+#     o3d.io.write_point_cloud('raw.ply', pcd)
 
-    density_data = density(data)
-    pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(density_data)
-    o3d.io.write_point_cloud('density.ply', pcd)
+#     density_data = density(data)
+#     pcd = o3d.geometry.PointCloud()
+#     pcd.points = o3d.utility.Vector3dVector(density_data)
+#     o3d.io.write_point_cloud('density.ply', pcd)
 
-    drop_data = drop_hole(data)
-    pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(drop_data)
-    o3d.io.write_point_cloud('drop.ply', pcd)
+#     drop_data = drop_hole(data)
+#     pcd = o3d.geometry.PointCloud()
+#     pcd.points = o3d.utility.Vector3dVector(drop_data)
+#     o3d.io.write_point_cloud('drop.ply', pcd)
 
-    scan_data = p_scan(data)
-    pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(scan_data)
-    o3d.io.write_point_cloud('scan.ply', pcd)
+#     scan_data = p_scan(data)
+#     pcd = o3d.geometry.PointCloud()
+#     pcd.points = o3d.utility.Vector3dVector(scan_data)
+#     o3d.io.write_point_cloud('scan.ply', pcd)
 
-    # pdb.set_trace()
-    print(data.shape)
+#     # pdb.set_trace()
+#     print(data.shape)
 
