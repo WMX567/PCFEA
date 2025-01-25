@@ -65,7 +65,7 @@ parser.add_argument('--test_batch_size', type=int, default=12, metavar='batch_si
 # method
 parser.add_argument('--use_aug', type=str2bool, default=False, help='Using source augmentation or not')
 parser.add_argument('--lambda_0', type=float, default=0.5, help='lambda in TSA')
-parser.add_argument('--epoch_warmup', type=int, default=5, help='0: no warm up; only train a w/o DA method')
+parser.add_argument('--epoch_warmup', type=int, default=1, help='0: no warm up; only train a w/o DA method')
 parser.add_argument('--selection_strategy', type=str, default='threshold', choices=['threshold', 'ratio'])
 parser.add_argument('--use_gradual_src_threshold', type=str2bool, default=True, help='Using changing threshold to select source samples or not')
 parser.add_argument('--use_gradual_trgt_threshold', type=str2bool, default=True, help='Using changing threshold to select target samples or not')
