@@ -174,12 +174,13 @@ class DGCNN(nn.Module):
         self.C = classifier(args, num_class)
         self.DefRec = RegionReconstruction(args, num_f_prev + 1024)
 
-    def forward(self, x, activate_DefRec=False, nwd=False):
+    def forward(self, x):
         batch_size = x.size(0)
-        num_points = x.size(2)
         logits = {}
 
         x0 = get_graph_feature(x, self.args, k=self.k)
+        print("x0 size")
+        print(x0.size())
         transformd_x0 = self.input_transform_net(x0)
         x = torch.matmul(transformd_x0, x)
         x = get_graph_feature(x, self.args, k=self.k)
