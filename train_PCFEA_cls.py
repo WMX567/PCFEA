@@ -110,19 +110,19 @@ io.cprint(str(args))
 args.save_path = io.path
 
 random.seed(1)
-# np.random.seed(1)  # to get the same point choice in ModelNet and ScanNet leave it fixed
+np.random.seed(1)  # to get the same point choice in ModelNet and ScanNet leave it fixed
 torch.manual_seed(args.seed)
-args.cuda = (args.gpus[0] >= 0) and torch.cuda.is_available()
-device = torch.device("cuda:" + str(args.gpus[0]) if args.cuda else "cpu")
-if args.cuda:
-    io.cprint('Using GPUs ' + str(args.gpus) + ',' + ' from ' +
-              str(torch.cuda.device_count()) + ' devices available')
+args.cuda = True if torch.cuda.is_available() else False
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+if torch.cuda.is_available():
+    io.cprint('Using GPUs')
     torch.cuda.manual_seed_all(args.seed)
     torch.backends.cudnn.enabled = False
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 else:
     io.cprint('Using CPU')
+
 
 
 # ==================
