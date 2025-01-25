@@ -884,7 +884,7 @@ for epoch in range(args.epochs):
         best_epoch_by_trgt_test = epoch
         best_model_by_trgt_test = io.save_model(model)
     
-    best_teacher_model = io.save_model(model, epoch, 'teacher')
+    best_teacher_model = io.save_model(model)
 
     io.cprint("------------------------------------------------------------------")
     io.cprint("previous best source val accuracy: %.4f" % (src_best_val_acc))
