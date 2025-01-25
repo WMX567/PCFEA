@@ -65,7 +65,7 @@ parser.add_argument('--test_batch_size', type=int, default=12, metavar='batch_si
 # method
 parser.add_argument('--use_aug', type=str2bool, default=False, help='Using source augmentation or not')
 parser.add_argument('--lambda_0', type=float, default=0.5, help='lambda in TSA')
-parser.add_argument('--epoch_warmup', type=int, default=1, help='0: no warm up; only train a w/o DA method')
+parser.add_argument('--epoch_warmup', type=int, default=5, help='0: no warm up; only train a w/o DA method')
 parser.add_argument('--selection_strategy', type=str, default='threshold', choices=['threshold', 'ratio'])
 parser.add_argument('--use_gradual_src_threshold', type=str2bool, default=True, help='Using changing threshold to select source samples or not')
 parser.add_argument('--use_gradual_trgt_threshold', type=str2bool, default=True, help='Using changing threshold to select target samples or not')
@@ -866,23 +866,23 @@ for epoch in range(args.epochs):
         src_best_val_acc = src_val_acc
         trgt_best_acc_by_src_val = trgt_test_acc
         best_epoch_by_src_val = epoch
-        best_model_by_src_val = io.save_model(model, epoch, 'save_best_by_src_val')
+        best_model_by_src_val = io.save_model(model)
 
     if src_test_acc > src_best_test_acc:
         src_best_test_acc = src_test_acc
         trgt_best_acc_by_src_test = trgt_test_acc
         best_epoch_by_src_test = epoch
-        best_model_by_src_test = io.save_model(model, epoch, 'save_best_by_src_test')
+        best_model_by_src_test = io.save_model(model)
 
     if trgt_val_acc > trgt_best_acc_by_trgt_val:
         trgt_best_acc_by_trgt_val = trgt_test_acc
         best_epoch_by_trgt_val = epoch
-        best_model_by_trgt_val = io.save_model(model, epoch, 'save_best_by_trgt_val')
+        best_model_by_trgt_val = io.save_model(model)
 
     if trgt_test_acc > trgt_best_acc_by_trgt_test:
         trgt_best_acc_by_trgt_test = trgt_test_acc
         best_epoch_by_trgt_test = epoch
-        best_model_by_trgt_test = io.save_model(model, epoch, 'save_best_by_trgt_test')
+        best_model_by_trgt_test = io.save_model(model)
     
     best_teacher_model = io.save_model(model, epoch, 'teacher')
 
