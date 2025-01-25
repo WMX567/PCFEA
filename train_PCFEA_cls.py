@@ -796,9 +796,9 @@ for epoch in range(args.epochs):
             class_num = args.num_class
 
             if args.loss_function == 'no_mean':
-                PCFEA_loss = criterion_PCFEA(model.cls, src_feature, src_pred, src_label, Lambda, cv_pool)
+                PCFEA_loss = criterion_PCFEA(model.C, src_feature, src_pred, src_label, Lambda, cv_pool)
             elif args.loss_function == 'use_mean':
-                PCFEA_loss = criterion_PCFEA(model.cls, src_feature, src_pred, src_label, Lambda, mean_pool, mean_src, cv_pool)
+                PCFEA_loss = criterion_PCFEA(model.C, src_feature, src_pred, src_label, Lambda, mean_pool, mean_src, cv_pool)
             else:
                 # CE loss
                 PCFEA_loss = criterion_PCFEA(src_pred, src_label)
