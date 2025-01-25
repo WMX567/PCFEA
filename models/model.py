@@ -109,54 +109,7 @@ class transform_net(nn.Module):
         x = x.view(x.size(0), self.K, self.K)
         return x
     
-class PointNet(nn.Module):
 
-    def __init__(self, args, num_class=10):
-        super(PointNet, self).__init__()
-        self.args = args
-        self.trans_net1 = transform_net(args, 3, 3)
-        self.trans_net2 = transform_net(args, 64, 64)
-        self.conv1 = conv_2d(3, 64, 1)
-        self.conv2 = conv_2d(64, 64, 1)
-        self.conv3 = conv_2d(64, 64, 1)
-        self.conv4 = conv_2d(64, 128, 1)
-        self.conv5 = conv_2d(128, 1024, 1)
-        num_f_prev = 64 + 64 + 64 + 128
-        self.C = classifier(args, num_class)
-        self.DefRec = RegionReconstruction(args, num_f_prev + 1024)
-
-    def forward(self, x, activate_DefRec=False):
-        num_points = x.size(2)
-        x = torch.unsqueeze(x, dim=3)
-        logits = {}
-        transform = self.trans_net1(x)
-        x = x.transpose(2, 1)
-        x = x.squeeze(dim=3)
-        x = torch.bmm(x, transform)
-        x = x.unsqueeze(3)
-        x = x.transpose(2, 1)
-        x1 = self.conv1(x)
-        x2 = self.conv2(x1)
-        transform = self.trans_net2(x2)
-        x = x2.transpose(2, 1)
-        x = x.squeeze(dim=3)
-        x = torch.bmm(x, transform)
-        x = x.unsqueeze(3)
-        x = x.transpose(2, 1)
-        x3 = self.conv3(x)
-        x4 = self.conv4(x3)
-        x_cat = torch.cat((x1, x2, x3, x4), dim=1)
-        x = self.conv5(x4)
-        x5, _ = torch.max(x, dim=2, keepdim=False)
-        x = x5.squeeze(dim=2)  # batchsize*1024
-        logits["cls"] = self.C(x)
-
-        if activate_DefRec:
-            DefRec_input = torch.cat((x_cat.squeeze(dim=3), x5.repeat(1, 1, num_points)), dim=1)
-            logits["DefRec"] = self.DefRec(DefRec_input)
-
-        return logits
-    
 class DGCNN(nn.Module):
 
     def __init__(self, args, num_class=10):
@@ -178,9 +131,9 @@ class DGCNN(nn.Module):
         batch_size = x.size(0)
         logits = {}
 
+        print("x.size() = ", x.size())
+        
         x0 = get_graph_feature(x, self.args, k=self.k)
-        print("x0 size")
-        print(x0.size())
         transformd_x0 = self.input_transform_net(x0)
         x = torch.matmul(transformd_x0, x)
         x = get_graph_feature(x, self.args, k=self.k)
