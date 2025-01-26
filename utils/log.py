@@ -29,10 +29,10 @@ class IOStream():
     def close(self):
         self.f.close()
 
-    def save_model(self, model):
-        path = self.path + '/{}_{}_{}'.format(self.args.src_dataset, 
+    def save_model(self, model, type_):
+        path = self.path + '/{}_{}_{}_{}'.format(self.args.src_dataset, 
                                               self.args.trgt_dataset, 
-                                              self.args.seed) + self.args.model_type +'.pt'
+                                              self.args.seed, type_) + self.args.model_type +'.pt'
         torch.save(model.state_dict(), path)
         return
 

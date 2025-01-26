@@ -863,23 +863,23 @@ for epoch in range(args.epochs):
         src_best_val_acc = src_val_acc
         trgt_best_acc_by_src_val = trgt_test_acc
         best_epoch_by_src_val = epoch
-        best_model_by_src_val = io.save_model(model)
+        best_model_by_src_val = io.save_model(model, "save_best_by_src_val")
 
     if src_test_acc > src_best_test_acc:
         src_best_test_acc = src_test_acc
         trgt_best_acc_by_src_test = trgt_test_acc
         best_epoch_by_src_test = epoch
-        best_model_by_src_test = io.save_model(model)
+        best_model_by_src_test = io.save_model(model, "save_best_by_src_test")
 
     if trgt_val_acc > trgt_best_acc_by_trgt_val:
         trgt_best_acc_by_trgt_val = trgt_test_acc
         best_epoch_by_trgt_val = epoch
-        best_model_by_trgt_val = io.save_model(model)
+        best_model_by_trgt_val = io.save_model(model, "save_best_by_src_val")
 
     if trgt_test_acc > trgt_best_acc_by_trgt_test:
         trgt_best_acc_by_trgt_test = trgt_test_acc
         best_epoch_by_trgt_test = epoch
-        best_model_by_trgt_test = io.save_model(model)
+        best_model_by_trgt_test = io.save_model(model, "save_best_by_src_test")
     
     best_teacher_model = io.save_model(model)
 
