@@ -874,14 +874,14 @@ for epoch in range(args.epochs):
     if trgt_val_acc > trgt_best_acc_by_trgt_val:
         trgt_best_acc_by_trgt_val = trgt_test_acc
         best_epoch_by_trgt_val = epoch
-        best_model_by_trgt_val = io.save_model(model, "save_best_by_src_val")
+        best_model_by_trgt_val = io.save_model(model, "save_best_by_trgt_val")
 
     if trgt_test_acc > trgt_best_acc_by_trgt_test:
         trgt_best_acc_by_trgt_test = trgt_test_acc
         best_epoch_by_trgt_test = epoch
-        best_model_by_trgt_test = io.save_model(model, "save_best_by_src_test")
+        best_model_by_trgt_test = io.save_model(model, "save_best_by_trgt_test")
     
-    best_teacher_model = io.save_model(model)
+    best_teacher_model = io.save_model(model, "teacher")
 
     io.cprint("------------------------------------------------------------------")
     io.cprint("previous best source val accuracy: %.4f" % (src_best_val_acc))
