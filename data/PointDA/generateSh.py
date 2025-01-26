@@ -18,7 +18,7 @@ for j, folder_name in enumerate(folder_names):
                 f.write('#SBATCH --cpus-per-task=1\n')
                 f.write('#SBATCH --ntasks-per-node=4\n')
                 f.write('#SBATCH --mem-per-cpu=32GB\n')
-                f.write('#SBATCH --time=20:00:00\n')
+                f.write('#SBATCH --time=22:00:00\n')
                 f.write('#SBATCH --gres=gpu:1\n')
                 f.write('#SBATCH --output='+pair+str(seed)+'{}.out'.format(folder_name)+'\n')
                 f.write('\n\n\n\n')

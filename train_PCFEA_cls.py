@@ -41,7 +41,7 @@ def str2bool(v):
 # ==================
 parser = argparse.ArgumentParser(description='DA on Point Clouds')
 parser.add_argument('--dataroot', type=str, default='../data/', metavar='N', help='data path')
-parser.add_argument('--out_path', type=str, default='./pcfea/', help='log folder path')
+parser.add_argument('--out_path', type=str, default='./pcfea/exp/', help='log folder path')
 parser.add_argument('--num_workers', type=int, default=2, help='number of workers in dataloader')
 parser.add_argument('--exp_name', type=str, default='PCFEA', help='Name of the experiment')
 

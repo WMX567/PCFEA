@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --ntasks-per-node=4
 #SBATCH --mem-per-cpu=32GB
-#SBATCH --time=20:00:00
+#SBATCH --time=22:00:00
 #SBATCH --gres=gpu:1
 #SBATCH --output=s+s2pcfea.out
 
