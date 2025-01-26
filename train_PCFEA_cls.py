@@ -5,7 +5,6 @@ import math
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset
-from utils.pc_utils import random_rotate_one_axis
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import DataLoader
@@ -59,26 +58,26 @@ parser.add_argument('--trgt_dataset', type=str, default='Kin', choices=['Kin', '
 parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
 parser.add_argument('--gpus', type=lambda s: [int(item.strip()) for item in s.split(',')], default='1',
                     help='comma delimited of gpu ids to use. Use "-1" for cpu usage')
-parser.add_argument('--batch_size', type=int, default=12, metavar='batch_size', help='Size of train batch per domain')
+parser.add_argument('--batch_size', type=int, default=8, metavar='batch_size', help='Size of train batch per domain')
 parser.add_argument('--test_batch_size', type=int, default=12, metavar='batch_size', help='Size of test batch per domain')
 
 # method
 parser.add_argument('--use_aug', type=str2bool, default=False, help='Using source augmentation or not')
 parser.add_argument('--lambda_0', type=float, default=0.5, help='lambda in TSA')
-parser.add_argument('--epoch_warmup', type=int, default=0, help='0: no warm up; only train a w/o DA method')
+parser.add_argument('--epoch_warmup', type=int, default=10, help='0: no warm up; only train a w/o DA method')
 parser.add_argument('--selection_strategy', type=str, default='threshold', choices=['threshold', 'ratio'])
-parser.add_argument('--use_gradual_src_threshold', type=str2bool, default=True, help='Using changing threshold to select source samples or not')
+parser.add_argument('--use_gradual_src_threshold', type=str2bool, default=False, help='Using changing threshold to select source samples or not')
 parser.add_argument('--use_gradual_trgt_threshold', type=str2bool, default=True, help='Using changing threshold to select target samples or not')
-parser.add_argument('--mode_src_threshold', type=str, default='linear', choices=['linear', 'nonlinear'])
-parser.add_argument('--mode_trgt_threshold', type=str, default='linear', choices=['linear', 'nonlinear'])
+parser.add_argument('--mode_src_threshold', type=str, default='nonlinear', choices=['linear', 'nonlinear'])
+parser.add_argument('--mode_trgt_threshold', type=str, default='nonlinear', choices=['linear', 'nonlinear'])
 parser.add_argument('--src_threshold', type=float, default=0.0, help="threshold to select source samples, increasing")
 parser.add_argument('--trgt_threshold', type=float, default=1.0, help="threshold to select target samples, decreasing")
-parser.add_argument('--exp_k', type=float, default=0.1, help='parameter in exp in threshold')
+parser.add_argument('--exp_k', type=float, default=0.15, help='parameter in exp in threshold')
 parser.add_argument('--use_gradual_src_ratio', type=str2bool, default=True, help='Using changing ratio to select source samples or not')
 parser.add_argument('--use_gradual_trgt_ratio', type=str2bool, default=True, help='Using changing ratio to select target samples or not')
 parser.add_argument('--src_ratio', type=float, default=1.0, help="threshold to select source samples, increasing")
 parser.add_argument('--trgt_ratio', type=float, default=1.0, help="threshold to select target samples, decreasing")
-parser.add_argument('--period_update_pool', type=int, default=1, help='period to update the pool')
+parser.add_argument('--period_update_pool', type=int, default=10, help='period to update the pool')
 parser.add_argument('--use_model_eval', type=str2bool, default=True, help='Using the eval mode of the model or the train mode')
 parser.add_argument('--loss_function', type=str, default='use_mean', choices=['no_mean', 'use_mean', 'CE'], help='use mean or not in our PCFEA loss or CE')
 parser.add_argument('--use_EMA', type=str2bool, default=False, help='Using teacher model or not')
@@ -86,7 +85,7 @@ parser.add_argument('--EMA_update_warmup', type=str2bool, default=False, help='U
 parser.add_argument('--EMA_decay', type=float, default=0.99, help='initial weight decay in EMA')
 parser.add_argument('--use_src_IDFA', type=str2bool, default=True, help='Using the prototype alignment on the source data')
 parser.add_argument('--use_trgt_IDFA', type=str2bool, default=True, help='Using the prototype alignment on the target data')
-parser.add_argument('--tao', type=float, default=0.1, help='tao in prototype alignment')
+parser.add_argument('--tao', type=float, default=2.0, help='tao in prototype alignment')
 parser.add_argument('--w_PCFEA', type=float, default=1.0, help='weight of PCFEA loss')
 parser.add_argument('--w_src_IDFA', type=float, default=1.0, help='weight of source prototype alignment loss')
 parser.add_argument('--w_trgt_IDFA', type=float, default=1.0, help='weight of target prototype alignment loss')
@@ -796,7 +795,6 @@ for epoch in range(args.epochs):
             if args.loss_function == 'no_mean':
                 PCFEA_loss = criterion_PCFEA(model.C, src_feature, src_pred, src_label, Lambda, cv_pool)
             elif args.loss_function == 'use_mean':
-                print("Check Src:", src_feature.size())
                 PCFEA_loss = criterion_PCFEA(model.C, src_feature, src_pred, src_label, Lambda, mean_pool, mean_src, cv_pool)
             else:
                 # CE loss
