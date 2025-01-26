@@ -124,8 +124,7 @@ class DGCNN(nn.Module):
         num_f_prev = 64 + 64 + 128 + 256
         self.bn5 = nn.BatchNorm1d(1024)
         self.conv5 = nn.Conv1d(num_f_prev, 1024, kernel_size=1, bias=False)
-        self.C = classifier(args, num_class)
-        self.DefRec = RegionReconstruction(args, num_f_prev + 1024)
+        self.C = linear_classifier(1024, num_class) 
 
     def forward(self, x):
         batch_size = x.size(0)
@@ -158,6 +157,15 @@ class DGCNN(nn.Module):
 
         return logits
     
+class linear_classifier(nn.Module):
+    def __init__(self, input_dim, num_class):
+        super(linear_classifier, self).__init__()
+
+        self.mlp = nn.Linear(input_dim, num_class)
+
+    def forward(self, x):
+        x = self.mlp(x)
+        return x
     
   
 class classifier(nn.Module):
@@ -176,29 +184,3 @@ class classifier(nn.Module):
         logits = self.mlp3(x2)
         return logits
     
-class RegionReconstruction(nn.Module):
-    """
-    Region Reconstruction Network - Reconstruction of a deformed region.
-    For more details see https://arxiv.org/pdf/2003.12641.pdf
-    """
-    def __init__(self, args, input_size):
-        super(RegionReconstruction, self).__init__()
-        self.args = args
-        self.of1 = 256
-        self.of2 = 256
-        self.of3 = 128
-        self.bn1 = nn.BatchNorm1d(self.of1)
-        self.bn2 = nn.BatchNorm1d(self.of2)
-        self.bn3 = nn.BatchNorm1d(self.of3)
-        self.dp1 = nn.Dropout(p=args.dropout)
-        self.dp2 = nn.Dropout(p=args.dropout)
-        self.conv1 = nn.Conv1d(input_size, self.of1, kernel_size=1, bias=False)
-        self.conv2 = nn.Conv1d(self.of1, self.of2, kernel_size=1, bias=False)
-        self.conv3 = nn.Conv1d(self.of2, self.of3, kernel_size=1, bias=False)
-        self.conv4 = nn.Conv1d(self.of3, 3, kernel_size=1, bias=False)
-    def forward(self, x):
-        x = self.dp1(F.relu(self.bn1(self.conv1(x))))
-        x = self.dp2(F.relu(self.bn2(self.conv2(x))))
-        x = F.relu(self.bn3(self.conv3(x)))
-        x = self.conv4(x)
-        return x.permute(0, 2, 1)
