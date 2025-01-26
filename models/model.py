@@ -157,6 +157,8 @@ class DGCNN(nn.Module):
         logits['pred'] = self.C(x5)
 
         return logits
+    
+    
   
 class classifier(nn.Module):
     def __init__(self, args, num_class=10):

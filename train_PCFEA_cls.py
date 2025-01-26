@@ -65,7 +65,7 @@ parser.add_argument('--test_batch_size', type=int, default=12, metavar='batch_si
 # method
 parser.add_argument('--use_aug', type=str2bool, default=False, help='Using source augmentation or not')
 parser.add_argument('--lambda_0', type=float, default=0.5, help='lambda in TSA')
-parser.add_argument('--epoch_warmup', type=int, default=5, help='0: no warm up; only train a w/o DA method')
+parser.add_argument('--epoch_warmup', type=int, default=0, help='0: no warm up; only train a w/o DA method')
 parser.add_argument('--selection_strategy', type=str, default='threshold', choices=['threshold', 'ratio'])
 parser.add_argument('--use_gradual_src_threshold', type=str2bool, default=True, help='Using changing threshold to select source samples or not')
 parser.add_argument('--use_gradual_trgt_threshold', type=str2bool, default=True, help='Using changing threshold to select target samples or not')
@@ -796,6 +796,7 @@ for epoch in range(args.epochs):
             if args.loss_function == 'no_mean':
                 PCFEA_loss = criterion_PCFEA(model.C, src_feature, src_pred, src_label, Lambda, cv_pool)
             elif args.loss_function == 'use_mean':
+                print("Check Src:", src_feature.size())
                 PCFEA_loss = criterion_PCFEA(model.C, src_feature, src_pred, src_label, Lambda, mean_pool, mean_src, cv_pool)
             else:
                 # CE loss
