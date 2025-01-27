@@ -16,8 +16,10 @@ import utils.log
 from data.dataloader_PointDA_initial import ScanNet, ModelNet, ShapeNet, label_to_idx
 from models.model import DGCNN
 
-MAX_LOSS = 9 * (10 ** 9)
-NWORKERS = 4
+NWORKERS=4
+MAX_LOSS = 9 * (10**9)
+spl_weight = 1
+cls_weight = 1
 
 
 def str2bool(v):
