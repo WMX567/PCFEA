@@ -352,7 +352,7 @@ for i in range(10):
     test(trgt_test_loader, model, "Target", "Test", 0)
     if trgt_new_val_acc > trgt_new_best_val_acc:
         trgt_new_best_val_acc = trgt_new_val_acc
-        io.save_model(model)
+        io.save_model(model, "SPST")
     args.threshold += 5e-3
 
 path = args.out_path + '/{}_{}_{}'.format(args.src_dataset, 
