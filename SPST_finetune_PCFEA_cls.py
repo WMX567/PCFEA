@@ -12,7 +12,7 @@ from utils.pc_utils import random_rotate_one_axis
 import sklearn.metrics as metrics
 import argparse
 import json
-import utils
+import utils.log
 from data.dataloader_PointDA_initial import ScanNet, ModelNet, ShapeNet, label_to_idx
 from models.model import DGCNN
 
