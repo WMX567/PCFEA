@@ -355,7 +355,7 @@ for i in range(10):
         io.save_model(model, "SPST")
     args.threshold += 5e-3
 
-path = args.out_path + '/{}_{}_{}'.format(args.src_dataset, 
+path = args.out_path + '/{}_{}_{}_SPST'.format(args.src_dataset, 
                                               args.trgt_dataset, 
                                               args.seed) + args.model_type +'.pt'
 model.load_state_dict(torch.load(path))
