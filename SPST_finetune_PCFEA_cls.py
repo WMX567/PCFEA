@@ -131,6 +131,9 @@ class DataLoad(Dataset):
         pointcloud = pointcloud.transpose(1, 0)
         label = np.copy(self.label[item])
         return (pointcloud, label)
+    
+    def __len__(self):  # Add this method
+        return len(self.pc)
 
 
 # ==================
