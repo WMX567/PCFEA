@@ -148,7 +148,7 @@ def select_target_by_conf(trgt_train_loader, model=None):
             data = data.permute(0, 2, 1)
 
             logits = model(data)
-            cls_conf = sfm(logits['cls'])
+            cls_conf = sfm(logits['pred'])
             mask = torch.max(cls_conf, 1)  # 2 * b
             index = 0
             for i in mask[0]:
@@ -257,13 +257,13 @@ def self_train(trgt_new_train_loader, src_train_loader, src_val_loader, trgt_val
             batch_size = data1[1].size()[0]
             t_data, t_labels = data1[0].to(device), data1[1].to(device)
             t_logits = model(t_data)
-            loss_t = spl_weight * criterion(t_logits["cls"], t_labels)
+            loss_t = spl_weight * criterion(t_logits["pred"], t_labels)
             trgt_print_losses['cls'] += loss_t.item() * batch_size
             loss_t.backward()
             s_data, s_labels = data2[1].to(device), data2[2].to(device)
             s_data = s_data.permute(0, 2, 1)
             s_logits = model(s_data)
-            loss_s = cls_weight * criterion(s_logits["cls"], s_labels)
+            loss_s = cls_weight * criterion(s_logits["pred"], s_labels)
             src_print_losses['cls'] += loss_s.item() * batch_size
             loss_s.backward()
             count += batch_size
@@ -311,11 +311,11 @@ def test(test_loader, model=None, set_type="Target", partition="Val", epoch=0):
             batch_size = data.size()[0]
 
             logits = model(data)
-            loss = criterion(logits["cls"], labels)
+            loss = criterion(logits["pred"], labels)
             print_losses['cls'] += loss.item() * batch_size
 
             # evaluation metrics
-            preds = logits["cls"].max(dim=1)[1]
+            preds = logits["pred"].max(dim=1)[1]
             test_true.append(labels.cpu().numpy())
             test_pred.append(preds.detach().cpu().numpy())
             count += batch_size
