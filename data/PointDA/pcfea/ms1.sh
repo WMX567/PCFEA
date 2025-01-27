@@ -17,4 +17,4 @@ conda activate pyCLGL
 
 
 
-python /scratch1/mengxiwu/PCFEA/train_PCFEA_cls.py --dataroot /scratch1/mengxiwu/PCFEA/data/PointDA/ --src_dataset modelnet --trgt_dataset scannet --seed 1 --model_type pcfea
+python /scratch1/mengxiwu/PCFEA/SPST_finetune_PCFEA_cls.py --dataroot /scratch1/mengxiwu/PCFEA/data/PointDA/ --src_dataset modelnet --trgt_dataset scannet --seed 1 --model_type pcfea

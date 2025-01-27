@@ -4,7 +4,7 @@ dataset_dict = {'s+s':['shapenet', 'scannet'],'ss+':['scannet','shapenet'],
 'sm':['scannet', 'modelnet'],'ms':['modelnet','scannet'],'s+m':['shapenet','modelnet'],
 'ms+':['modelnet','shapenet']}
 
-file_names = ['train_PCFEA_cls.py']
+file_names = ['SPST_finetune_PCFEA_cls.py']
 
 for j, folder_name in enumerate(folder_names):
     for pair in pair_names:

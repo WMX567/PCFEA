@@ -59,6 +59,7 @@ parser.add_argument('--dropout', type=float, default=0.5, help='dropout rate')
 parser.add_argument('--cls_weight', type=float, default=0.8, help='weight of the classification loss')
 parser.add_argument('--threshold', type=float, default=0.8, help='Threshold for selecting target data')
 parser.add_argument('--model_type', type = str, default='SPST', help = 'model name')
+parser.add_argument('--type_', type = str, default='save_best_by_trgt_test', help = 'model type')
 args = parser.parse_args()
 
 # ==================
@@ -213,9 +214,9 @@ trgt_test_loader = DataLoader(trgt_testset, num_workers=NWORKERS, batch_size=arg
 # ==================
 model = DGCNN(args)
 model = model.to(device)
-path = args.out_path + '/{}_{}_{}'.format(args.src_dataset, 
+path = args.out_path + '/{}_{}_{}_{}'.format(args.src_dataset, 
                                             args.trgt_dataset, 
-                                            args.seed) + 'ver10.pt'
+                                            args.seed, args.type_) + 'pcfea.pt'
 model.load_state_dict(torch.load(path))
 model = model.to(device)
 best_model = None
