@@ -13,4 +13,4 @@ source ~/.bashrc
 conda activate py38
 
 
-python /scratch/mw4355/PCFEA/train_PCFEA_cls.py --dataroot /scratch/mw4355/PCFEA/data/PointDA/ --src_dataset modelnet --trgt_dataset scannet --seed 3 --model_type ver13
+python /scratch/mw4355/PCFEA/train_PCFEA_cls.py --dataroot /scratch/mw4355/PCFEA/data/ --src_dataset modelnet --trgt_dataset scannet --seed 3 --model_type ver13
