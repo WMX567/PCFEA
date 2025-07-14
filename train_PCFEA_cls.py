@@ -17,7 +17,7 @@ from models.model import DGCNN
 from critic import PCFEALoss_no_mean, PCFEALoss, CalculateSelectedMean, CalculateSelectedCV, IDFALoss
 import time
 
-start_time = time.time()
+
 
 MAX_LOSS = 9 * (10 ** 9)
 
@@ -378,6 +378,7 @@ iters = 0
 
 for epoch in range(args.epochs):
     io.cprint("epoch %d, " % (epoch))
+    start_time = time.time()
     # -------------------------------------------------------------------------- #
     # selection stage
     # -------------------------------------------------------------------------- #
@@ -848,6 +849,10 @@ for epoch in range(args.epochs):
     # print progress
     print_losses = {k: v * 1.0 / (count_sample + 1e-6) for (k, v) in print_losses.items()}
     io.print_progress("", "Trn", epoch, print_losses)
+
+    time_end = time.time()
+    print("Epoch time: %.5f hours" % ((time_end - time_start) / 3600))
+
 
     # ===================
     # Test
