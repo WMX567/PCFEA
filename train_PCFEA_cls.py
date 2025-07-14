@@ -15,6 +15,9 @@ import utils.log
 from data.dataloader_PointDA_initial import ScanNet, ModelNet, ShapeNet
 from models.model import DGCNN
 from critic import PCFEALoss_no_mean, PCFEALoss, CalculateSelectedMean, CalculateSelectedCV, IDFALoss
+import time
+
+start_time = time.time()
 
 MAX_LOSS = 9 * (10 ** 9)
 
@@ -916,3 +919,6 @@ io.cprint("Best model searched by trgt test was found at epoch %d, target test a
 
 io.cprint("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 io.cprint("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+
+end_time = time.time()
+io.cprint("Training finished, total time: %.2f hours" % (end_time - start_time)/3600)
