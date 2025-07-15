@@ -378,7 +378,7 @@ iters = 0
 
 for epoch in range(args.epochs):
     io.cprint("epoch %d, " % (epoch))
-    start_time = time.time()
+    time_start = time.time()
     # -------------------------------------------------------------------------- #
     # selection stage
     # -------------------------------------------------------------------------- #
